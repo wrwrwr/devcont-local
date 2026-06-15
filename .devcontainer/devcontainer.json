@@ -1,0 +1,23 @@
+{
+  "image": "ubuntu:26.04",
+  "features": {
+    "ghcr.io/devcontainers/features/node:2": {
+      "npmVersion": "latest"
+    },
+    "ghcr.io/wrwrwr/devcont-feats/apt-install:0": {
+      // libs and xvfb are needed for vscode-test
+      // @cspell:ignore libasound, libgbm, libnss
+      "packages": "git,libasound2t64,libgbm1,libgtk-3-0t64,libnss3,pipx,xvfb"
+    },
+    "ghcr.io/wrwrwr/devcont-feats/pipx-install:0": {
+      "packages": "prek"
+    }
+  },
+  "postStartCommand": {
+    "install-npm-deps": "npm install",
+    "prepare-prek-hooks": "prek prepare-hooks"
+  },
+  "remoteEnv": {
+    "PATH": "${containerEnv:PATH}:${containerWorkspaceFolder}/node_modules/.bin"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "image": "yet-another-base:2",
+  "features": {
+    "c.test/a-feature-from-devcontainer": { },
+    "abc.test/a-feature-from-user-configuration": { },
+    "abc.test/a-feature-from-workspace": { },
+    "c.test/a-feature-from-folder": { },
+    "c.test/a-feature-from-devcontainer-local": { }
+  }
+}

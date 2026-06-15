@@ -1,0 +1,6 @@
+{
+  "image": "yet-another-base:2",
+  "features": {
+    "c.test/a-feature-from-devcontainer": { }
+  }
+}

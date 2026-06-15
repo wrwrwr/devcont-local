@@ -1,0 +1,16 @@
+/.cache/*
+!/.cache/CACHEDIR.TAG
+/.devcontainer/.bash_history
+/.devcontainer/devcontainer-local/
+/.devcontainer/devcontainer-local.json
+/.vale/*
+!/.vale/config
+!/.vale/vale.ini
+/.vscode-test/
+/_arch/
+/coverage/
+/node_modules/
+/notes/
+/tests/*/devcontainer-local/
+/package-lock.json
+/*.vsix

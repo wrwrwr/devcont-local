@@ -1,0 +1,198 @@
+#:schema https://www.schemastore.org/prek.json
+
+default_install_hook_types = []
+default_stages = ['manual', 'pre-commit', 'pre-push']
+
+[update]
+cooldown_days = 3
+
+[[repos]]
+repo = 'meta'
+hooks = [
+  { id = 'check-hooks-apply' },
+  { id = 'check-useless-excludes' }
+]
+
+[[repos]]
+repo = 'https://github.com/pre-commit/pre-commit-hooks'
+rev = 'v6.0.0'
+hooks = [
+  { id = 'check-added-large-files' },
+  { id = 'check-case-conflict' },
+  { id = 'check-illegal-windows-names' },
+  { id = 'check-merge-conflict' },
+  { id = 'check-shebang-scripts-are-executable' },
+  { id = 'check-vcs-permalinks' },
+  { id = 'end-of-file-fixer' },
+  { id = 'fix-byte-order-marker' },
+  { id = 'mixed-line-ending' },
+  { id = 'trailing-whitespace' }
+]
+
+[[repos]]
+repo = 'https://github.com/gitleaks/gitleaks'
+rev = 'v8.30.1'
+hooks = [
+  { id = 'gitleaks' }
+]
+
+[[repos]]
+repo = 'https://github.com/editorconfig-checker/editorconfig-checker'
+rev = 'v4.0.2'
+hooks = [
+  {
+    id = 'editorconfig-checker',
+    exclude = '\.dat$'
+  }
+]
+
+[[repos]]
+repo = 'https://github.com/streetsidesoftware/cspell-cli'
+rev = 'v10.3.0'
+hooks = [
+  {
+    id = 'cspell',
+    args = [
+      '--no-must-find-files',
+      '--no-progress',
+      '--no-summary',
+      '--gitignore',
+      '--cache',
+      '--cache-location=.cache/_cspell.json',
+      '--files'
+    ],
+    stages = ['commit-msg', 'manual', 'pre-commit', 'pre-push']
+  }
+]
+
+[[repos]]
+repo = 'https://github.com/vale-cli/vale'
+rev = 'v3.25.0'
+hooks = [
+  {
+    id = 'vale',
+    name = 'sync vale packages',
+    args = ['--config=.vale/vale.ini', 'sync'],
+    pass_filenames = false
+  },
+  {
+    id = 'vale',
+    name = 'check writing',
+    shell = 'bash',
+    # Print files for parsing errors and fail on warnings/suggestions.
+    entry = '''
+      output="$(vale --config=.vale/vale.ini $@ 2>&1 || :)"
+      if [[ "$output" =~ E[0-9]+ ]]; then
+        printf "\n\e[4m%s\e[0m\n\n%s" "$*" "$output"
+        exit 1
+      fi
+      pattern='[1-9][0-9]*\s(error|warning|suggestion)'
+      if [[ "$output" =~ $pattern ]]; then
+        echo "$output"
+        exit 1
+      fi
+    ''',
+    # F: Vale 3.25: Comments in .json and multiline inline tables in .toml.
+    exclude = {
+      glob = [
+        '**/*devcontainer*.json',
+        '**/.vscode/settings.json',
+        'tests/ws-configs/config.json',
+        'license.txt',
+        'prek.toml'
+      ]
+    }
+  }
+]
+
+[[repos]]
+repo = 'https://github.com/DavidAnson/markdownlint-cli2'
+rev = 'v0.24.0'
+hooks = [
+  { id = 'markdownlint-cli2' }
+]
+
+[[repos]]
+repo = 'https://github.com/adrienverge/yamllint'
+rev = 'v1.38.0'
+hooks = [
+  {
+    id = 'yamllint',
+    args = [
+      '--strict',
+      '--config-data',
+      '''
+extends: default
+rules:
+  document-start: disable
+  truthy: {check-keys: false}
+'''
+    ]
+  }
+]
+
+[[repos]]
+repo = 'https://github.com/python-jsonschema/check-jsonschema'
+rev = '0.38.2'
+hooks = [
+  {
+    id = 'check-jsonschema',
+    additional_dependencies = ['json5'],
+    args = [
+      '--force-filetype=json5',
+      '--schemafile=https://raw.githubusercontent.com/devcontainers/spec/refs/heads/main/schemas/devContainer.schema.json'
+    ],
+    files = 'devcontainer.json$'
+  }
+]
+
+[[repos]]
+repo = 'https://github.com/commitizen-tools/commitizen'
+rev = 'v4.19.2'
+hooks = [
+  {
+    id = 'commitizen',
+    stages = ['commit-msg']
+  },
+  {
+    id = 'commitizen-branch',
+    stages = ['pre-push']
+  }
+]
+
+[[repos]]
+repo = 'https://github.com/rhysd/actionlint'
+rev = 'v1.7.12'
+hooks = [
+  { id = 'actionlint' }
+]
+
+[[repos]]
+repo = 'local'
+hooks = [
+  {
+    id = 'tsc',
+    name = 'check ts types',
+    language = 'system',
+    entry = 'tsc',
+    pass_filenames = false
+  },
+  {
+    id = 'eslint',
+    name = 'check package.json and ts',
+    language = 'system',
+    entry = 'eslint --cache --cache-location=.cache/eslint.json --cache-strategy=content .',
+    pass_filenames = false
+  },
+  {
+    id = 'vscode-test',
+    name = 'run extension tests',
+    language = 'system',
+    # WA: vscode/test-cli 0.0.15: Hangs on "Resolving version"
+    # without the shell wrapper / redirect.
+    shell = 'bash',
+    entry = 'rm --recursive --force .vscode-test/user-data && xvfb-run vscode-test 2> /dev/null',
+    pass_filenames = false,
+    stages = ['manual']
+  }
+]

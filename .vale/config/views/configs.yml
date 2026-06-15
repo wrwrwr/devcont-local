@@ -1,0 +1,29 @@
+engine: dasel
+scopes:
+  - name: categories
+    expr: search($key == "categories")
+    join: ", "
+
+  - name: description
+    expr: search($key == "description")
+
+  - name: display-name
+    expr: search($key == "displayName")
+
+  - name: keywords
+    expr: search($key == "keywords")
+    join: ", "
+
+  - name: markdown-description
+    expr: search($key == "markdownDescription")
+    type: md
+
+  - name: name
+    expr: search($key == "name")
+
+  - name: title
+    expr: search($key == "title")
+
+  - name: text-like-value
+    # WA: Dasel 3.11: With the terms reversed this doesn't match anything.
+    expr: search($this =~ r/ / && $key != 'expr' && $key != 'run')

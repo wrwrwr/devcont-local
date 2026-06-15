@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <circle cx="50" cy="50" r="50" fill="#317AC6"/>
+  <g fill="none" stroke="#fff" stroke-linejoin="round" stroke-width="3">
+    <path d="M34.09 34.09h31.82v31.82H34.09z"/>
+    <path d="M21.59 21.59h56.82v56.82H21.59z"/>
+    <path d="M34.09 34.09 21.59 21.59M65.91 34.09 78.41 21.59M65.91 65.91 78.41 78.41M34.09 65.91 21.59 78.41"/>
+  </g>
+  <text x="50" y="58" fill="#fff" font-family="Ubuntu, sans-serif" font-size="24" font-weight="700" text-anchor="middle">L</text>
+</svg>

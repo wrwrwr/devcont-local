@@ -1,0 +1,33 @@
+{
+  "image": "base-image:0",
+  "features": {
+    "a.test/a-base-language-feature:1.0.0": { },
+    "a.test/a-linting-or-testing-tool:2": {
+      "boolean-option": true,
+      "string-option": "value",
+      "an-additional-option": "false",
+      "option-with-sub": "${localEnv:TEST}"
+    },
+    "abc.test/a-feature-from-user-configuration": { },
+    "abc.test/a-feature-from-workspace": { },
+    "a.test/an-additional-feature:latest": { }
+  },
+  "onCreateCommand": [
+    "some-setup",
+    "some-more-setup"
+  ],
+  "postStartCommand": {
+    "install-or-rebuild": "parallel-command",
+    "another-command": "install something && run something"
+  },
+  "remoteEnv": {
+    "PATH": "${containerEnv:PATH}:${containerWorkspaceFolder}/path",
+    "API_URL": "https://api.test/",
+    "PROMPT_COMMAND": "history -a"
+  },
+  "mounts": [
+    "type=bind,source=/no-such-dir,target=/mounts-as-an-array,readonly",
+    "type=bind,source=/no-such-dir,target=/some-dev-config,readonly",
+    "type=bind,source=/no-such-dir,target=/another-custom-config,readonly"
+  ]
+}

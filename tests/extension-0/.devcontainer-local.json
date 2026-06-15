@@ -1,0 +1,24 @@
+{
+  // A comment.
+  "features": {
+    "a.test/a-linting-or-testing-tool:2": {
+      "an-additional-option": "false",
+      "option-with-sub": "${localEnv:TEST}"
+    },
+    "a.test/an-additional-feature:latest": { }
+  },
+  "onCreateCommand": [
+    "some-setup",
+    "some-more-setup"
+  ],
+  "postStartCommand": {
+    "another-command": "install something && run something"
+  },
+  "remoteEnv": {
+    "PROMPT_COMMAND": "history -a"
+  },
+  "mounts": [
+    "type=bind,source=/no-such-dir,target=/some-dev-config,readonly",
+    "type=bind,source=/no-such-dir,target=/another-custom-config,readonly"
+  ]
+}

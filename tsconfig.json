@@ -1,0 +1,17 @@
+{
+  "include": [ "src", "tests", "eslint.config.ts" ],
+  "compilerOptions": {
+    "module": "nodenext",
+    "types": [ "mocha", "node" ],
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "strict": true,
+    "exactOptionalPropertyTypes": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
+  }
+}

@@ -1,0 +1,23 @@
+engine: tree-sitter
+scopes:
+  - name: comment
+    expr: |
+      (
+        (comment)+ @comment
+        (#not-match? @comment "[^\n]*@vale-ignore")
+      )
+
+  # The ignore comments only work directly before a string.
+  - name: text-like-string
+    expr: |
+      (
+        (
+          (comment) @comment
+          (#not-match? @comment "@vale-ignore")
+        )?
+        .
+        (
+          (string)+ @strings
+          (#match? @strings " ")
+        )
+      )

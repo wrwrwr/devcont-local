@@ -1,0 +1,35 @@
+name: Check code
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v7
+
+      - name: Install node
+        uses: actions/setup-node@v7
+        with:
+          node-version: lts/*
+
+      - name: Install npm tools
+        run: npm install
+
+      - name: Add tools to path
+        run: echo "${{ github.workspace }}/node_modules/.bin" >> "$GITHUB_PATH"
+
+      - name: Cache tool results
+        uses: actions/cache@v6
+        with:
+          path: .cache
+          key: results-${{ hashFiles('prek.toml', 'package.json') }}
+
+      - name: Run lints and tests
+        uses: j178/prek-action@v3.1.0

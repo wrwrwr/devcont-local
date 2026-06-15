@@ -1,0 +1,15 @@
+{
+  "folders": [
+    { "path": "extension-0" },
+    { "path": "extension-1" },
+    { "path": "extension-2" },
+    { "path": "ws-configs" }
+  ],
+  "settings": {
+    "devcontLocal.commonConfiguration": {
+      "features": {
+        "abc.test/a-feature-from-workspace": { }
+      }
+    }
+  }
+}

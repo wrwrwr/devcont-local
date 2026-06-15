@@ -1,0 +1,22 @@
+{
+  "image": "base-image:0",
+  "features": {
+    "a.test/a-base-language-feature:1.0.0": { },
+    "a.test/a-linting-or-testing-tool:2": {
+      "boolean-option": true,
+      "string-option": "value"
+    }
+  },
+  "onCreateCommand": "some-setup",
+  "postStartCommand": {
+    "install-or-rebuild": "parallel-command"
+  },
+  "remoteEnv": {
+    "PATH": "${containerEnv:PATH}:${containerWorkspaceFolder}/path",
+    // Some comment.
+    "API_URL": "https://api.test/"
+  },
+  "mounts": [
+    "type=bind,source=/no-such-dir,target=/mounts-as-an-array,readonly"
+  ]
+}

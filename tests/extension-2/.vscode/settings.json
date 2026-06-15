@@ -1,0 +1,9 @@
+{
+  // Redundant, but may be convenient under some circumstances.
+  "devcontLocal.commonConfiguration": {
+    "features": {
+      "c.test/a-feature-from-folder": { }
+    }
+  },
+  "devcontLocal.mergeOnChanges": false
+}

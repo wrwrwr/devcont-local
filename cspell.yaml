@@ -1,0 +1,14 @@
+# yamllint disable-line rule:line-length
+$schema: https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json
+
+language: en
+
+userWords: [ignore-user-settings]
+
+dictionaries: [project]
+dictionaryDefinitions:
+  - name: project
+    path: .vale/config/vocabularies/project/accept.txt
+
+ignorePaths:
+  - license.txt
