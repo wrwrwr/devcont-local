@@ -1,3 +1,5 @@
+import type * as vscode from 'vscode'
+
 import {
     type JsonObject,
     type JsonValue,
@@ -16,6 +18,15 @@ export type Overrides<T extends object> = Partial<
     AddPrefix<T, typeof REPLACE_PREFIX> &
     AddPrefix<T, typeof REMOVE_PREFIX>
 >
+
+export type Transform<C> = (
+    branch: string[],
+    value: JsonValue | undefined,
+    context: C,
+    log: vscode.LogOutputChannel
+) => JsonValue | undefined
+
+export type Transforms<C> = { [key: string]: Transforms<C> | Transform<C> }
 
 /**
  * Deeply patches a json-like config using overrides with the same structure.
@@ -51,4 +62,53 @@ export function mergeObjects(
         }
     }
     return merged
+}
+
+/**
+ * Applies functions to config values at chosen keys / subkeys.
+ *
+ * @param config the configuration to transform
+ * @param transforms same structure, functions as leaves
+ * @param context common data for transforms
+ * @param log for reporting mismatched types
+ * @param _branch used for recursion (private)
+ * @returns transformed config
+ */
+export function applyTransforms<C>(
+    config: JsonObject,
+    transforms: Transforms<C>,
+    context: C,
+    log: vscode.LogOutputChannel,
+    _branch: string[] = []
+): JsonObject {
+    config = { ...config }
+    for (const [key, transform] of Object.entries(transforms)) {
+        const value = config[key]
+        const keyBranch = [..._branch, key]
+        if (typeof transform === 'function') {
+            const newValue = transform(keyBranch, value, context, log)
+            if (newValue === undefined) {
+                /* eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+                    -- configurable transform on an object of a limited type */
+                delete config[key]
+            } else {
+                config[key] = newValue
+            }
+        } else if (value === undefined) {
+            continue
+        } else if (isJsonObject(value)) {
+            config[key] = applyTransforms(
+                value,
+                transform,
+                context,
+                log,
+                keyBranch
+            )
+        } else {
+            log.warn(
+                `Expected an object at '${key}' in '${keyBranch.join(".")}'`
+            )
+        }
+    }
+    return config
 }

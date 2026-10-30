@@ -1,7 +1,7 @@
 {
   "name": "devcont-local",
   "displayName": "Dev Containers: Local Add-on",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Merge local configuration with devcontainer.json.",
   "categories": [
     "Other"
@@ -41,6 +41,12 @@
       "title": "Dev Containers: Local Add-on",
       "type": "object",
       "properties": {
+        "devcontLocal.commonConfiguration": {
+          "title": "Common Configuration",
+          "type": "object",
+          "markdownDescription": "Properties to merge into every `devcontainer.json`.",
+          "scope": "resource"
+        },
         "devcontLocal.mergeOnChanges": {
           "title": "Merge on Changes",
           "type": "boolean",
@@ -48,10 +54,11 @@
           "markdownDescription": "When you save `devcontainer[-local].json` or change `commonConfiguration`.",
           "scope": "resource"
         },
-        "devcontLocal.commonConfiguration": {
-          "title": "Common Configuration",
-          "type": "object",
-          "markdownDescription": "Properties to merge into every `devcontainer.json`.",
+        "devcontLocal.fixRelativePaths": {
+          "title": "Fix relative paths",
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Prefix relative paths to account for the subfolder. For example, replaces `\"dockerComposeFile\": \"compose.yaml\"` with `../compose.yaml` or `../../compose.yaml`.",
           "scope": "resource"
         }
       }

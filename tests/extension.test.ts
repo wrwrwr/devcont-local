@@ -1,4 +1,5 @@
 import assert from 'assert'
+
 import * as vscode from 'vscode'
 
 import { readWorkspaceJsonc } from '../src/ws-configs.ts'
@@ -11,21 +12,21 @@ const TEST_USER_CONFIG = {
 }
 
 suite("extension", () => {
-    let folders: Tuple<vscode.WorkspaceFolder, 3>
     let log: vscode.LogOutputChannel
+    let folders: Tuple<vscode.WorkspaceFolder, 3>
 
     setup(async () => {
-        await vscode.workspace.getConfiguration('devcontLocal').update(
-            'commonConfiguration',
-            TEST_USER_CONFIG,
-            vscode.ConfigurationTarget.Global
-        )
+        log = createTestLog()
         folders = getWorkspaceFolders(
             'extension-0',
             'extension-1',
             'extension-2'
         )
-        log = createTestLog()
+        await vscode.workspace.getConfiguration('devcontLocal').update(
+            'commonConfiguration',
+            TEST_USER_CONFIG,
+            vscode.ConfigurationTarget.Global
+        )
     })
 
     test("merge command", async () => {

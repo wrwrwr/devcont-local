@@ -123,5 +123,5 @@ take a look at the `Output → Dev Containers: Local Add-on` tab.
 <!-- just additional -->
 **License**: MIT\
 **Status**: Experimental (non-transcribed TS, only tested on desktop/Ubuntu)\
-**Assisted**: Code review, additional test cases and icon drawing by Copilot
+**Assisted**: Code reviews, additional test cases and icon drawing by Copilot
 <!-- vale write-good.TooWordy = on -->

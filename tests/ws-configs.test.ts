@@ -1,4 +1,5 @@
 import assert from 'assert'
+
 import type * as vscode from 'vscode'
 
 import {
@@ -13,12 +14,12 @@ import {
 import { createTestLog, getWorkspaceFolders } from './common.ts'
 
 suite("ws-configs", () => {
-    let folder: vscode.WorkspaceFolder
     let log: vscode.LogOutputChannel
+    let folder: vscode.WorkspaceFolder
 
     setup(() => {
-        [folder] = getWorkspaceFolders('ws-configs')
         log = createTestLog()
+        folder = getWorkspaceFolders('ws-configs')[0]
     })
 
     suite("readWorkspaceFile", () => {

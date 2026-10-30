@@ -1,5 +1,8 @@
 {
-  "image": "yet-another-base:2",
+  "build": {
+    "context": ".",
+    "dockerfile": "Dockerfile"
+  },
   "features": {
     "c.test/a-feature-from-devcontainer": { }
   }

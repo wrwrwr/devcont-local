@@ -1,10 +1,72 @@
 import assert from 'assert'
 
-import { mergeObjects } from '../src/json-patch.ts'
-import type { JsonObject } from '../src/ws-configs.ts'
-import type { Tuple } from './common.ts'
+import type * as vscode from 'vscode'
+
+import {
+    type Transforms,
+    applyTransforms,
+    mergeObjects
+} from '../src/json-patch.ts'
+import type { JsonObject, JsonValue } from '../src/ws-configs.ts'
+import { type Tuple, createTestLog } from './common.ts'
+
+function testTransform1(
+    branch: string[],
+    value: JsonValue | undefined,
+    context: string,
+    log: vscode.LogOutputChannel
+): JsonValue | undefined {
+    if (value === undefined) {
+        return 1
+    }
+    if (value === 'r') {
+        return undefined
+    }
+    if (typeof value === 'number') {
+        return value + 1
+    }
+    if (typeof value === 'string') {
+        return value + context
+    }
+    if (Array.isArray(value)) {
+        return [...value, 1]
+    }
+    log.warn(`Unexpected value type '${typeof value}' at ${branch.join(".")}`)
+    return value
+}
+
+function testTransform2(
+    branch: string[],
+    value: JsonValue | undefined,
+    context: string,
+    log: vscode.LogOutputChannel
+): JsonValue | undefined {
+    if (value === undefined) {
+        return 2
+    }
+    if (value === 'rr') {
+        return undefined
+    }
+    if (typeof value === 'number') {
+        return value + 2
+    }
+    if (typeof value === 'string') {
+        return value + context + context
+    }
+    if (Array.isArray(value)) {
+        return [null, { q: [2] }, ...value]
+    }
+    log.warn(`Unexpected value type '${typeof value}' at ${branch.join(".")}`)
+    return value
+}
 
 suite("json-patch", () => {
+    let log: vscode.LogOutputChannel
+
+    setup(() => {
+        log = createTestLog()
+    })
+
     suite("mergeObjects", () => {
         const cases: Tuple<JsonObject, 3>[] = [
             [
@@ -50,12 +112,12 @@ suite("json-patch", () => {
             [
                 { p: 1, q: 2 },
                 { 'remove:r': null },
-                { p: 1, q: 2 },
+                { p: 1, q: 2 }
             ],
             [
                 { p: 1, q: 2 },
                 { 'remove:p': 3 },
-                { q: 2 },
+                { q: 2 }
             ],
             [
                 { o: { a: 1, b: 2, c: 3 } },
@@ -85,7 +147,7 @@ suite("json-patch", () => {
             [
                 { o: { a: [1, 2], b: { a: [3, 4] } }, a: [5, 6] },
                 { o: { 'replace:a': [7] } },
-                { o: { a: [7], b: { a: [3, 4] } }, a: [5, 6] },
+                { o: { a: [7], b: { a: [3, 4] } }, a: [5, 6] }
             ],
             [
                 { o: { p: 1 } },
@@ -98,6 +160,64 @@ suite("json-patch", () => {
                 assert.deepStrictEqual(
                     mergeObjects(obj1, obj2),
                     expected
+                )
+            })
+        }
+    })
+
+    suite("applyTransforms", () => {
+        const cases: [JsonObject, Transforms<string>, JsonObject][] = [
+            [
+                { p: 1 },
+                { p: testTransform1 },
+                { p: 2 }
+            ],
+            [
+                { p: 'a' },
+                { p: testTransform1 },
+                { p: 'at' }
+            ],
+            [
+                { p: { q: 'a', r: 'b' }, q: 'c' },
+                { p: { q: testTransform1 } },
+                { p: { q: 'at', r: 'b' }, q: 'c' }
+            ],
+            [
+                { p: { q: 'a', r: { q: 'a', r: 'b' } }, q: 'c' },
+                { p: { q: testTransform1, r: { r: testTransform2 } } },
+                { p: { q: 'at', r: { q: 'a', r: 'btt' } }, q: 'c' }
+            ],
+            [
+                { p: { q: [1, 2], r: [3, 4] } },
+                { p: { q: testTransform1, r: testTransform2 } },
+                { p: { q: [1, 2, 1], r: [null, { q: [2] }, 3, 4] } }
+            ],
+            [
+                { p: 3 },
+                { q: testTransform1, r: { q: testTransform2 } },
+                { p: 3, q: 1 }
+            ],
+            [
+                { p: 'r' },
+                { p: testTransform1 },
+                {}
+            ],
+            [
+                { p: { r: 'rr' } },
+                { p: { q: testTransform1, r: testTransform2 } },
+                { p: { q: 1 } }
+            ],
+        ]
+        for (const [config, transforms, expected] of cases) {
+            const configJson = JSON.stringify(config)
+            test(configJson, () => {
+                assert.deepStrictEqual(
+                    applyTransforms(config, transforms, 't', log),
+                    expected
+                )
+                assert.strictEqual(
+                    configJson,
+                    JSON.stringify(config)
                 )
             })
         }

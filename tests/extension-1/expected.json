@@ -1,5 +1,7 @@
 {
-  "image": "another-base:1",
+  "dockerComposeFile": "../compose.yaml",
+  "service": "workspace",
+  "workspaceFolder": "/workspace",
   "features": {
     "b.test/a-feature-from-devcontainer": { },
     "abc.test/a-feature-from-user-configuration": { },

@@ -1,7 +1,17 @@
 import * as vscode from 'vscode'
 
 import Package from '../package.json' with {type: 'json'}
-import { mergeObjects } from './json-patch.ts'
+import {
+    type Transforms,
+    applyTransforms,
+    mergeObjects
+} from './json-patch.ts'
+import {
+    fixBuildContextPath,
+    fixComposeFilePath,
+    fixDockerFilePath,
+    getPathPrefix
+} from './rel-paths.ts'
 import {
     type JsonObject,
     type JsonValue,
@@ -36,6 +46,24 @@ const OUTPUT_PATH = '.devcontainer/devcontainer-local/devcontainer.json'
 const OUTPUT_COMMENT = " \
 // Local Add-on updates this file automatically, edit the files in\n \
 // the parent directory or the commonConfiguration setting instead.\n"
+
+/**
+ * Properties with path values relative to devcontainer.json;
+ * see: https://containers.dev/implementors/json_reference.
+ */
+const PATH_TRANSFORMS: Transforms<{ pathPrefix: string }> = {
+    build: {
+        context: fixBuildContextPath,
+        dockerfile: fixDockerFilePath
+    },
+    dockerComposeFile: fixComposeFilePath
+}
+
+/**
+ * Used for fixing paths when there is neither base devcontainer.json nor
+ * devcontainer-local.json (context files referenced from the user config).
+ */
+const DEFAULT_BASE_PATH = '.devcontainer/devcontainer.json'
 
 /**
  * Creates a log, registers the merge command and adds refresh listeners.
@@ -119,7 +147,11 @@ async function mergeFoldersConfigs(
     }
     if (isOnChange) {
         folders = folders.filter(folder => {
-            if (shouldMergeOnChanges(folder)) {
+            const mergeOnChanges = vscode.workspace.getConfiguration(
+                'devcontLocal',
+                folder
+            ).get('mergeOnChanges')
+            if (mergeOnChanges === true) {
                 return true
             } else {
                 log.trace(`Skipping ${folder.uri.fsPath}: updates disabled`)
@@ -133,20 +165,8 @@ async function mergeFoldersConfigs(
 }
 
 /**
- * Decides whether to auto-refresh a config.
- *
- * @param folder containing the config
- * @returns true if should refresh
- */
-function shouldMergeOnChanges(
-    folder: vscode.WorkspaceFolder
-): boolean {
-    const config = vscode.workspace.getConfiguration('devcontLocal', folder)
-    return config.get('mergeOnChanges') === true
-}
-
-/**
- * Merges a base config with the user config and a local config.
+ * Merges a base config with the user config and a local config;
+ * applies path fixes.
  *
  * @param folder to merge configs in
  * @param log warning if nothing to merge, traces for values
@@ -156,7 +176,8 @@ async function mergeFolderConfigs(
     log: vscode.LogOutputChannel
 ): Promise<void> {
     log.info(`Merging configurations in ${folder.uri.fsPath}...`)
-    const userConfig = getUserConfig(folder, log)
+    const extConfig = vscode.workspace.getConfiguration('devcontLocal', folder)
+    const userConfig = getUserConfig(extConfig, log)
     const localConfig = await readFileConfig(folder, LOCAL_PATHS, log)
     if (userConfig === null && localConfig === null) {
         log.warn("Neither user nor local config, skipping.")
@@ -166,7 +187,7 @@ async function mergeFolderConfigs(
     const baseConfig = await readFileConfig(folder, BASE_PATHS, log)
     if (baseConfig !== null) {
         log.trace("Base config", baseConfig)
-        mergedConfig = baseConfig
+        mergedConfig = baseConfig.content
     }
     if (userConfig !== null) {
         log.trace("User config", userConfig)
@@ -174,7 +195,19 @@ async function mergeFolderConfigs(
     }
     if (localConfig !== null) {
         log.trace("Local config", localConfig)
-        mergedConfig = mergeObjects(mergedConfig, localConfig)
+        mergedConfig = mergeObjects(mergedConfig, localConfig.content)
+    }
+    if (extConfig.get('fixRelativePaths') === true) {
+        const pathPrefix = getPathPrefix(
+            OUTPUT_PATH,
+            baseConfig?.path ?? localConfig?.path ?? DEFAULT_BASE_PATH
+        )
+        mergedConfig = applyTransforms(
+            mergedConfig,
+            PATH_TRANSFORMS,
+            { pathPrefix },
+            log
+        )
     }
     await writeFileConfig(folder, OUTPUT_PATH, mergedConfig, log)
 }
@@ -182,18 +215,15 @@ async function mergeFolderConfigs(
 /**
  * Returns the commonConfiguration setting as a plain object.
  *
- * @param folder scope of the configuration
+ * @param extConfig scoped to a folder
  * @param log warning if not an object
  * @returns setting value, null if undefined or non-object
  */
 function getUserConfig(
-    folder: vscode.WorkspaceFolder,
+    extConfig: vscode.WorkspaceConfiguration,
     log: vscode.LogOutputChannel
 ): JsonObject | null {
-    const userConfigView = vscode.workspace.getConfiguration(
-        'devcontLocal',
-        folder
-    ).get('commonConfiguration')
+    const userConfigView = extConfig.get('commonConfiguration')
     // WA: VS Code 1.143: Second-level Object.entries() / feature merging.
     const userConfig = JSON.parse(JSON.stringify(userConfigView)) as JsonValue
     if (!isJsonObject(userConfig)) {
@@ -212,18 +242,18 @@ function getUserConfig(
  * @param folder containing the config
  * @param paths potential config locations
  * @param log for reporting reading/parsing problems
- * @returns parsed config, null if none found
+ * @returns path and parsed config, null if none found or invalid
  */
 async function readFileConfig(
     folder: vscode.WorkspaceFolder,
     paths: string[],
     log: vscode.LogOutputChannel
-): Promise<JsonObject | null> {
-    let config
+): Promise<{ path: string, content: JsonObject } | null> {
+    let content
     for (const path of paths) {
-        config = await readWorkspaceJsonc(folder, path, log)
-        if (config !== null) {
-            return config
+        content = await readWorkspaceJsonc(folder, path, log)
+        if (content !== null) {
+            return { path, content }
         }
     }
     return null
