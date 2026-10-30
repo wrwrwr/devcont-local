@@ -1,10 +1,12 @@
 import { fileURLToPath } from 'node:url'
 
-import { defineConfig, includeIgnoreFile } from 'eslint/config'
 import js from '@eslint/js'
-import json from 'eslint-plugin-package-json'
+import { defineConfig, includeIgnoreFile } from 'eslint/config'
+import jsdoc from 'eslint-plugin-jsdoc'
 import mocha from 'eslint-plugin-mocha'
+import json from 'eslint-plugin-package-json'
 import ts from 'typescript-eslint'
+
 
 export default defineConfig([
     includeIgnoreFile(
@@ -22,6 +24,14 @@ export default defineConfig([
             // WA: eslint-plugin-package-json 1.11: vsce doesn't include
             // lowercase license/readme by default.
             'package-json/no-redundant-files': 'off'
+        }
+    },
+
+    {
+        files: ['src/**/*.ts'],
+        extends: [jsdoc.configs['flat/recommended-typescript-error']],
+        rules: {
+            'jsdoc/tag-lines': ['error', 'any', { startLines: 1 }]
         }
     },
 

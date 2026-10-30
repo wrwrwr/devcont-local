@@ -17,6 +17,13 @@ export type Overrides<T extends object> = Partial<
     AddPrefix<T, typeof REMOVE_PREFIX>
 >
 
+/**
+ * Deeply patches a json-like config using overrides with the same structure.
+ *
+ * @param base configuration to patch
+ * @param overrides values to merge, replace or remove
+ * @returns base merged with overrides
+ */
 export function mergeObjects(
     base: JsonObject,
     overrides: Overrides<JsonObject>
@@ -29,7 +36,8 @@ export function mergeObjects(
             merged[baseKey] = overrideValue
         } else if (key.startsWith(REMOVE_PREFIX)) {
             const baseKey = key.slice(REMOVE_PREFIX.length)
-            /* eslint @typescript-eslint/no-dynamic-delete: 0 -- config copy */
+            /* eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+                -- configurable patch on an object of a limited type */
             delete merged[baseKey]
         } else {
             const baseValue = base[key]

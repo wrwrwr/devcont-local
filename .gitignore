@@ -8,9 +8,9 @@
 !/.vale/vale.ini
 /.vscode-test/
 /_arch/
+/_notes/
 /coverage/
 /node_modules/
-/notes/
 /tests/*/devcontainer-local/
 /package-lock.json
 /*.vsix

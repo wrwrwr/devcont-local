@@ -9,19 +9,39 @@ import {
     readWorkspaceJsonc
 } from './ws-configs.ts'
 
+/**
+ * Standard Dev Containers configuration files.
+ */
 const BASE_PATHS = [
     '.devcontainer/devcontainer.json',
     '.devcontainer.json'
 ]
+
+/**
+ * Files merged with the base config.
+ */
 const LOCAL_PATHS = [
     '.devcontainer/devcontainer-local.json',
     '.devcontainer-local.json'
 ]
+
+/**
+ * Where to write the merged config; needs to be a subfolder of .devcontainer.
+ */
 const OUTPUT_PATH = '.devcontainer/devcontainer-local/devcontainer.json'
+
+/**
+ * A comment to write at the beginning of the merged devcontainer.json.
+ */
 const OUTPUT_COMMENT = " \
 // Local Add-on updates this file automatically, edit the files in\n \
 // the parent directory or the commonConfiguration setting instead.\n"
 
+/**
+ * Creates a log, registers the merge command and adds refresh listeners.
+ *
+ * @param context used to register the entities
+ */
 export function activate(
     context: vscode.ExtensionContext
 ): void {
@@ -64,6 +84,12 @@ export function activate(
     context.subscriptions.push(log, command, configListener, fileListener)
 }
 
+/**
+ * Checks if the document's URI ends in one of the base/local config paths.
+ *
+ * @param doc uri/path to check
+ * @returns true if the path matches
+ */
 function isDevContainerConfig(
     doc: vscode.TextDocument
 ): boolean {
@@ -75,6 +101,13 @@ function isDevContainerConfig(
     return false
 }
 
+/**
+ * Merges configs in each of the workspace folders.
+ *
+ * @param folders to merge files in
+ * @param isOnChange skip folders excluded from auto-refresh
+ * @param log warning if no folders, trace if skipped
+ */
 async function mergeFoldersConfigs(
     folders: readonly vscode.WorkspaceFolder[] | undefined,
     isOnChange: boolean,
@@ -99,6 +132,12 @@ async function mergeFoldersConfigs(
     )
 }
 
+/**
+ * Decides whether to auto-refresh a config.
+ *
+ * @param folder containing the config
+ * @returns true if should refresh
+ */
 function shouldMergeOnChanges(
     folder: vscode.WorkspaceFolder
 ): boolean {
@@ -106,6 +145,12 @@ function shouldMergeOnChanges(
     return config.get('mergeOnChanges') === true
 }
 
+/**
+ * Merges a base config with the user config and a local config.
+ *
+ * @param folder to merge configs in
+ * @param log warning if nothing to merge, traces for values
+ */
 async function mergeFolderConfigs(
     folder: vscode.WorkspaceFolder,
     log: vscode.LogOutputChannel
@@ -134,6 +179,13 @@ async function mergeFolderConfigs(
     await writeFileConfig(folder, OUTPUT_PATH, mergedConfig, log)
 }
 
+/**
+ * Returns the commonConfiguration setting as a plain object.
+ *
+ * @param folder scope of the configuration
+ * @param log warning if not an object
+ * @returns setting value, null if undefined or non-object
+ */
 function getUserConfig(
     folder: vscode.WorkspaceFolder,
     log: vscode.LogOutputChannel
@@ -154,6 +206,14 @@ function getUserConfig(
     return userConfig
 }
 
+/**
+ * Returns the first parsable config.
+ *
+ * @param folder containing the config
+ * @param paths potential config locations
+ * @param log for reporting reading/parsing problems
+ * @returns parsed config, null if none found
+ */
 async function readFileConfig(
     folder: vscode.WorkspaceFolder,
     paths: string[],
@@ -169,6 +229,14 @@ async function readFileConfig(
     return null
 }
 
+/**
+ * Adds the output comment and saves the config as a file.
+ *
+ * @param folder to write in
+ * @param path relative to the folder
+ * @param config to serialize and write
+ * @param log info when written, trace with the output path
+ */
 async function writeFileConfig(
     folder: vscode.WorkspaceFolder,
     path: string,

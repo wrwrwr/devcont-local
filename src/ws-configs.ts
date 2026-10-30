@@ -2,8 +2,7 @@ import ini from 'ini'
 import jsonc from 'jsonc-parser'
 import * as vscode from 'vscode'
 
-/* eslint @typescript-eslint/consistent-indexed-object-style: 0 -- recursive */
-export type IniObject = { [key: string]: IniValue }
+export type IniObject = Record<string, IniValue>
 export type IniValue = JsonValue // ini supports (single-quoted) JSON values.
 export type JsonObject = { [key: string]: JsonValue }
 export type JsonValue =
@@ -14,6 +13,14 @@ export type JsonValue =
     JsonValue[] |
     JsonObject
 
+/**
+ * Reads and decodes a file in a workspace folder.
+ *
+ * @param folder containing the file
+ * @param path relative to the folder
+ * @param log warning if undecodable, trace if not found
+ * @returns file contents, null if not found or undecodable
+ */
 export async function readWorkspaceFile(
     folder: vscode.WorkspaceFolder,
     path: string,
@@ -47,6 +54,14 @@ export async function readWorkspaceFile(
     }
 }
 
+/**
+ * Reads and parses a .ini file.
+ *
+ * @param folder containing the file
+ * @param path relative to the folder
+ * @param log warning if undecodable, trace if not found
+ * @returns parsed config, null if not found or undecodable
+ */
 export async function readWorkspaceIni(
     folder: vscode.WorkspaceFolder,
     path: string,
@@ -59,6 +74,14 @@ export async function readWorkspaceIni(
     return ini.parse(content)
 }
 
+/**
+ * Reads and parses a .json file with comments.
+ *
+ * @param folder containing the file
+ * @param path relative to the folder
+ * @param log warning if undecodable, invalid or non-object, trace if not found
+ * @returns parsed config, null if not found, unparsable or non-object
+ */
 export async function readWorkspaceJsonc(
     folder: vscode.WorkspaceFolder,
     path: string,
@@ -83,6 +106,12 @@ export async function readWorkspaceJsonc(
     return parsed
 }
 
+/**
+ * Checks if a value is a plain object.
+ *
+ * @param value from a parsed config
+ * @returns true if an object and not an array
+ */
 export function isJsonObject(
     value: JsonValue | undefined
 ): value is JsonObject {
