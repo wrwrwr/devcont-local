@@ -48,7 +48,7 @@ hooks = [
 
 [[repos]]
 repo = 'https://github.com/streetsidesoftware/cspell-cli'
-rev = 'v10.3.0'
+rev = 'v10.4.0'
 hooks = [
   {
     id = 'cspell',
@@ -133,7 +133,7 @@ rules:
 
 [[repos]]
 repo = 'https://github.com/python-jsonschema/check-jsonschema'
-rev = '0.38.2'
+rev = '0.39.0'
 hooks = [
   {
     id = 'check-jsonschema',
@@ -148,7 +148,7 @@ hooks = [
 
 [[repos]]
 repo = 'https://github.com/commitizen-tools/commitizen'
-rev = 'v4.19.2'
+rev = 'v4.19.3'
 hooks = [
   {
     id = 'commitizen',
