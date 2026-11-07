@@ -1,3 +1,4 @@
+<!-- rumdl-disable-next-line heading-capitalization -->
 # Dev Containers: Local Add-on
 
 A small add-on for the [Dev Containers] VS Code extension that merges

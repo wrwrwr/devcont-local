@@ -6,11 +6,13 @@
 /.vale/*
 !/.vale/config
 !/.vale/vale.ini
-/.vscode-test/
 /_arch/
 /_notes/
-/coverage/
+
 /node_modules/
-/tests/*/devcontainer-local/
 /package-lock.json
+
+/.vscode-test/
+/tests/*/devcontainer-local/
+/coverage/
 /*.vsix

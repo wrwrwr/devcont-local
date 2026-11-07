@@ -85,20 +85,20 @@
     "@types/ini": "^4.1.1",
     "@types/mocha": "^10.0.10",
     "@types/node": "^26.6.6",
-    "@types/vscode": "^1.140.0",
+    "@types/vscode": "^1.145.0",
     "@vscode/test-cli": "^0.0.15",
     "@vscode/test-electron": "^3.1.0",
     "@vscode/vsce": "^4.1.0",
     "eslint": "^10.14.0",
-    "eslint-plugin-jsdoc": "^65.4.2",
+    "eslint-plugin-jsdoc": "^65.4.5",
     "eslint-plugin-mocha": "^12.0.2",
-    "eslint-plugin-package-json": "^1.12.0",
+    "eslint-plugin-package-json": "^1.14.0",
     "jiti": "^2.7.0",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.72.1"
   },
   "engines": {
-    "vscode": "^1.140.0"
+    "vscode": "^1.145.0"
   },
   "icon": "assets/icon-opt.png",
   "extensionKind": [

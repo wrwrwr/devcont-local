@@ -1,11 +1,8 @@
 CACHEDIR
 commitizen
 commonConfiguration
-config
 Dasel
-defineConfig
 deps
-Dev
 devcont
 devcontainers
 ini
@@ -13,12 +10,13 @@ jsonschema
 linejoin
 pipx
 prek
+proselint
+rumdl
 schemafile
 softprops
 subkeys
 undecodable
 vsce
 vscode
-workspaceFolder
 wrwrwr
 yamllint
