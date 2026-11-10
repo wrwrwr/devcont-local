@@ -4,6 +4,7 @@ on:
   pull_request:
   push:
     branches: [main]
+    tags-ignore: ['[0-9]+.*']
   workflow_call:
   workflow_dispatch:
 
@@ -29,7 +30,7 @@ jobs:
         uses: actions/cache@v6
         with:
           path: .cache
-          key: results-${{ hashFiles('prek.toml', 'package.json') }}
+          key: results-${{ hashFiles('package.json', 'prek.toml') }}
 
       - name: Run lints and tests
         uses: j178/prek-action@v3.1.0
